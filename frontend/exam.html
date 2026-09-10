@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Examination - AI Personal Examiner</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🧠</div>
+        <div class="brand-text">
+          <h1>AI Personal Examiner</h1>
+          <span>Live Session</span>
+        </div>
+      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="user-badge-nav">
+          <span>👤</span> <span id="user-nav-name">Learner</span>
+        </div>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container" style="max-width: 820px;">
+
+      <!-- Loading State -->
+      <div id="exam-loading" class="glass-card loading-box">
+        <div class="spinner"></div>
+        <h3 style="font-size: 18px; color: var(--text-main); margin-bottom: 8px;">Personalizing Next Question...</h3>
+        <p style="font-size: 14px; color: var(--text-muted);">
+          Consulting your memory history, past scores, and weak topics.
+        </p>
+      </div>
+
+      <!-- Interactive Exam Interface -->
+      <div id="exam-interface" class="glass-card" style="display: none;">
+        
+        <!-- Question Meta Header -->
+        <div class="exam-header">
+          <div class="q-meta">
+            <span id="topic-pill" class="topic-badge">Topic</span>
+            <span id="q-number-pill" class="q-number">Question #1</span>
+            <span id="concept-pill" class="q-concept">Concept: General</span>
+          </div>
+          <div>
+            <span id="difficulty-badge" class="diff-badge diff-easy">EASY</span>
+          </div>
+        </div>
+
+        <!-- Question Box -->
+        <div id="question-text-box" class="question-box">
+          Loading technical challenge...
+        </div>
+
+        <!-- Voice Examiner & Interview Timer Toolbar -->
+        <div class="voice-toolbar">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button type="button" id="voice-speak-btn" class="voice-btn" title="Read Question Aloud">
+              <span id="voice-btn-icon">🔊</span> <span id="voice-btn-label">Listen to Examiner</span>
+            </button>
+            <div id="soundwave-box" class="soundwave-box" title="Audio Synthesizer Activity">
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+            </div>
+          </div>
+
+          <!-- Interview Pressure Timer -->
+          <div id="exam-timer-pill" class="timer-pill" title="Mock Interview Time Remaining">
+            <span>⏱️</span>
+            <span id="timer-display">03:00</span>
+            <button type="button" id="timer-toggle-btn" class="timer-ctrl-btn" title="Pause/Resume Timer">⏸</button>
+            <button type="button" id="timer-reset-btn" class="timer-ctrl-btn" title="Reset Timer">🔄</button>
+          </div>
+        </div>
+
+        <!-- Answer Form -->
+        <form id="answer-form">
+          <!-- Answer Input Mode Tabs -->
+          <div class="mode-tabs">
+            <button type="button" id="tab-text-mode" class="mode-tab active">
+              ✍️ Conceptual Explanation
+            </button>
+            <button type="button" id="tab-code-mode" class="mode-tab">
+              💻 Code Sandbox
+            </button>
+          </div>
+
+          <!-- Conceptual Text Explanation Input -->
+          <div id="text-mode-container" class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label class="form-label" for="answer-input" style="margin-bottom: 0;">
+                Your Technical Answer & Explanation
+              </label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" id="dictate-btn" class="mic-btn" title="Speak your answer using Microphone">
+                  <span id="mic-icon">🎙️</span> <span id="mic-text">Dictate Answer</span>
+                </button>
+                <span id="word-count-badge" style="font-size: 11px; color: var(--text-dim);">0 words</span>
+              </div>
+            </div>
+            <textarea 
+              id="answer-input" 
+              class="form-textarea" 
+              placeholder="Explain your approach, core mechanisms, algorithmic complexity (Big-O), and edge cases..." 
+              required
+            ></textarea>
+          </div>
+
+          <!-- Code Sandbox Editor Input (Hidden initially) -->
+          <div id="code-mode-container" class="form-group" style="display: none;">
+            <div class="code-editor-box">
+              <div class="code-editor-header">
+                <span id="code-lang-label">Python 3 Sandbox</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" id="insert-template-btn" class="code-header-btn" title="Insert Starter Code Template">
+                    📋 Starter Template
+                  </button>
+                  <button type="button" id="run-code-btn" class="code-run-btn" title="Run Code in Isolated Sandbox">
+                    <span id="run-btn-icon">▶</span> <span id="run-btn-label">Run Code</span>
+                  </button>
+                </div>
+              </div>
+              <textarea 
+                id="code-input" 
+                class="code-textarea" 
+                placeholder="# Write clean code implementation or snippet here&#10;def solution():&#10;    # Write your technical logic&#10;    pass"
+                spellcheck="false"
+              ></textarea>
+            </div>
+
+            <!-- Sandbox Terminal Console -->
+            <div id="sandbox-terminal" class="sandbox-terminal">
+              <div class="terminal-header">
+                <div class="terminal-dots">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                  <span class="terminal-title">Sandbox Console</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span id="terminal-status-badge" class="terminal-badge ready">Ready</span>
+                  <button type="button" id="clear-console-btn" class="terminal-clear-btn" title="Clear Console">Clear</button>
+                </div>
+              </div>
+              <pre id="sandbox-terminal-output" class="terminal-body"><span class="terminal-dim">// Click "▶ Run Code" to execute your solution in the isolated sandbox.</span></pre>
+            </div>
+
+            <p style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">
+              Your code will be combined with your explanation for comprehensive AI evaluation.
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 14px; align-items: center;">
+            <button type="submit" id="submit-answer-btn" class="btn btn-primary" style="flex: 1; padding: 15px;">
+              <span>Submit Answer for AI Evaluation</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Evaluation Results Panel (Revealed upon submission) -->
+        <div id="evaluation-panel" class="eval-panel" style="display: none;">
+          
+          <!-- Score Summary Card -->
+          <div class="score-display-card">
+            <div>
+              <div class="score-text">Examiner Score</div>
+              <div class="score-value">
+                <span id="eval-score-num" style="color: #ffffff; font-size: 40px;">8.5</span> <span>/ 10</span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 12px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">
+                Recommended Next Difficulty
+              </div>
+              <span id="eval-rec-diff" class="diff-badge diff-medium">MEDIUM</span>
+              <div id="concept-mastered-badge" style="display: none; margin-top: 8px;">
+                <span class="chip chip-mastered" style="font-size: 11px; padding: 3px 10px;">🌟 Concept Mastered!</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Points Breakdown -->
+          <div class="points-grid">
+            <!-- Correct Points -->
+            <div class="point-card point-card-correct">
+              <h4>✓ Points Covered</h4>
+              <ul id="eval-correct-list" class="point-list">
+                <li>Explained core syntax accurately.</li>
+              </ul>
+            </div>
+
+            <!-- Missing Points -->
+            <div class="point-card point-card-missing">
+              <h4>⚠ Missing Points & Nuances</h4>
+              <ul id="eval-missing-list" class="point-list">
+                <li>Did not mention runtime time complexity.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- AI Examiner Feedback -->
+          <div class="feedback-box">
+            <h4>💡 Examiner Observation & Advice</h4>
+            <p id="eval-feedback-text">
+              Solid understanding demonstrated. Next time include edge cases.
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <button type="button" id="next-question-btn" class="btn btn-success" style="flex: 1; padding: 14px;">
+              <span>Next Adaptive Question</span> <span>→</span>
+            </button>
+            <button type="button" id="finish-exam-btn" class="btn btn-secondary" style="padding: 14px 24px;">
+              <span>Finish Exam & View Report</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

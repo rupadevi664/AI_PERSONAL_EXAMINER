@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learner Dashboard - AI Personal Examiner</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🧠</div>
+        <div class="brand-text">
+          <h1>AI Personal Examiner</h1>
+          <span>Learner Dashboard</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/exam" class="nav-link">Resume Exam</a>
+        <a href="/result" class="nav-link">Learner Analysis</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <span style="font-size: 13px; color: var(--accent-cyan); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+            Memory Intelligence Matrix
+          </span>
+          <h2 style="font-size: 28px; font-weight: 800; color: #ffffff;">Performance Dashboard</h2>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button type="button" id="open-reset-modal-btn" class="btn btn-secondary" style="padding: 10px 18px; font-size: 14px;">
+            <span>🔄 Reset Memory</span>
+          </button>
+          <a href="/exam" class="btn btn-primary" style="padding: 10px 20px; font-size: 14px;">
+            <span>+ Continue Exam</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Stats Grid -->
+      <div class="stats-grid">
+        <!-- Total Questions -->
+        <div class="stat-card">
+          <div class="stat-label">Questions Attempted</div>
+          <div id="dash-total-q" class="stat-value">0</div>
+        </div>
+
+        <!-- Overall Average -->
+        <div class="stat-card">
+          <div class="stat-label">Average Score</div>
+          <div id="dash-avg-score" class="stat-value stat-highlight">0.0/10</div>
+        </div>
+
+        <!-- Current Difficulty Tier -->
+        <div class="stat-card">
+          <div class="stat-label">Difficulty Tier</div>
+          <div id="dash-curr-diff" class="stat-value" style="font-size: 24px; color: #a5b4fc;">EASY</div>
+        </div>
+
+        <!-- Questions Avoided (WOW Metric!) -->
+        <div class="stat-card" style="border-color: rgba(6, 182, 212, 0.3);">
+          <div class="stat-label" style="color: var(--accent-cyan);">Questions Avoided</div>
+          <div id="dash-avoided-count" class="stat-value" style="color: var(--accent-cyan);">0</div>
+          <span style="font-size: 11px; color: var(--text-dim);">Already mastered by learner</span>
+        </div>
+      </div>
+
+      <!-- 2-Column Section: Topic Breakdown + Mastered Concepts -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+        
+        <!-- Topic Progress Breakdown -->
+        <div class="glass-card">
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Topic Competency</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">
+            Cumulative mastery levels tracked across attempted technical domains.
+          </p>
+
+          <div id="topic-bars-container">
+            <!-- Dynamic topic bars inserted here -->
+            <p style="color: var(--text-dim); font-size: 13px;">No topics attempted yet.</p>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-glass); font-size: 13px;">
+            <div>
+              <span style="color: var(--text-dim);">Strongest:</span> 
+              <strong id="dash-strongest-topic" style="color: var(--accent-emerald);">—</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-dim);">Needs Focus:</span> 
+              <strong id="dash-weakest-topic" style="color: var(--accent-rose);">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mastered Concepts Collection -->
+        <div class="glass-card">
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Mastered Concepts</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+            Concepts where you scored 8.0+ / 10. The examiner will not ask basic questions on these.
+          </p>
+
+          <div id="dash-mastered-chips" class="chip-container">
+            <!-- Dynamic mastered chips inserted here -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Questions & Answers History Log -->
+      <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Chronological Question History</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">
+              Complete audit trail of past inquiries, your submitted solutions, and AI ratings.
+            </p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="history-topic-filter" style="font-size: 12.5px; color: var(--text-dim);">Filter Topic:</label>
+            <select id="history-topic-filter" class="form-select" style="padding: 6px 12px; font-size: 13px; width: auto;">
+              <option value="all" selected>All Topics</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="history-items-container">
+          <div class="loading-box" style="padding: 24px 0;">
+            <div class="spinner" style="width: 28px; height: 28px;"></div>
+            <p style="font-size: 13px; color: var(--text-dim);">Loading memory ledger...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Reset Memory Modal -->
+  <div id="reset-memory-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <h3 style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 10px;">
+        🔄 Reset Examiner Memory
+      </h3>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
+        Choose whether to clear your historical scores and mastered concepts for a specific topic or start completely fresh.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label" for="reset-topic-select">Scope</label>
+        <select id="reset-topic-select" class="form-select">
+          <option value="all">Entire Profile (All Topics & History)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+        <button type="button" id="cancel-reset-btn" class="btn btn-secondary" style="padding: 10px 18px;">
+          Cancel
+        </button>
+        <button type="button" id="confirm-reset-btn" class="btn" style="background: var(--accent-rose); color: #ffffff; padding: 10px 20px; border: none; font-weight: 600;">
+          Confirm Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

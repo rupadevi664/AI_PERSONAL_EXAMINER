@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Personal Examiner - An AI examiner that remembers what you know</title>
+  <meta name="description" content="An adaptive LLM-powered technical examiner that remembers your previous answers, detects strengths and weaknesses, and dynamically scales difficulty.">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">🧠</div>
+        <div class="brand-text">
+          <h1>AI Personal Examiner</h1>
+          <span>Continuous Memory Engine</span>
+        </div>
+      </a>
+      <nav class="nav-links">
+        <a href="/" class="nav-link active">Home</a>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <a href="/result" class="nav-link">Learner Analysis</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container" style="max-width: 680px;">
+
+      <!-- Hero Header -->
+      <div class="hero-header">
+        <div class="badge-tag">
+          <span>✨</span> Continuous Technical Assessment
+        </div>
+        <h1 class="hero-title">AI Personal Examiner</h1>
+        <p class="hero-subtitle">
+          An AI examiner that remembers what you know, never asks the same question twice, and adapts to your strengths and weaknesses.
+        </p>
+      </div>
+
+      <!-- Returning User Shortcut Banner -->
+      <div id="returning-user-banner" style="display: none; align-items: center; justify-content: space-between; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--border-glow); padding: 14px 20px; border-radius: var(--radius-md); margin-bottom: 24px;">
+        <span style="font-size: 14px; color: #a5b4fc;">
+          Welcome back, <strong id="saved-learner-name" style="color: #ffffff;"></strong>! Memory profile detected.
+        </span>
+        <a href="/dashboard" style="font-size: 13px; color: var(--accent-cyan); text-decoration: none; font-weight: 600;">View Past Stats →</a>
+      </div>
+
+      <!-- Start Exam Card -->
+      <div class="glass-card">
+        <form id="start-exam-form">
+          
+          <div class="form-group">
+            <label class="form-label" for="learner-name">Your Full Name</label>
+            <input type="text" id="learner-name" class="form-input" placeholder="e.g. Rupa" required autofocus>
+            <p style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">
+              Your profile and historical memory are saved under your name.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="exam-topic">Technical Examination Topic</label>
+            <select id="exam-topic" class="form-select" required>
+              <option value="Python" selected>Python (Data Structures, OOP, Async, Concurrency)</option>
+              <option value="SQL">SQL (JOINs, Window Functions, Indexing, Transactions)</option>
+              <option value="FastAPI">FastAPI (Dependency Injection, Pydantic, Concurrency)</option>
+              <option value="Django">Django (ORM, MVT, QuerySet Optimization, Middleware)</option>
+              <option value="DSA">Data Structures & Algorithms (Trees, Graphs, DP, Big-O)</option>
+              <option value="JavaScript">JavaScript (Prototypes, Event Loop, Closures, Promises)</option>
+              <option value="System Design">System Design (Scaling, Caching, CAP, Sharding, Microservices)</option>
+              <option value="DevOps">DevOps & Cloud (Docker, Kubernetes, CI/CD, Observability)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="exam-difficulty">Starting Difficulty</label>
+            <select id="exam-difficulty" class="form-select">
+              <option value="easy" selected>Easy — Core Syntax & Fundamentals</option>
+              <option value="medium">Medium — Real-world Engineering & Scenarios</option>
+              <option value="hard">Hard — Internals, Low-level Mechanics & Architecture</option>
+            </select>
+            <p style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">
+              Note: Difficulty dynamically shifts as you answer.
+            </p>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="padding: 16px; font-size: 16px;">
+            <span>START EXAM</span> <span>→</span>
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Highlights Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px;">
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 18px;">
+          <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 6px;">🎯 Anti-Repetition Engine</h4>
+          <p style="font-size: 12.5px; color: var(--text-dim); line-height: 1.5;">
+            Mastered concepts are skipped at basic levels; weak concepts return in fresh, real-world scenarios.
+          </p>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 18px;">
+          <h4 style="font-size: 14px; color: var(--accent-emerald); margin-bottom: 6px;">📈 Adaptive Scaling</h4>
+          <p style="font-size: 12.5px; color: var(--text-dim); line-height: 1.5;">
+            Score 8-10 to automatically escalate from Easy to Medium and Hard. Drop difficulty when struggling.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
