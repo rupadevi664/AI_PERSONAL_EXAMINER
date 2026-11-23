@@ -43,7 +43,48 @@ The cornerstone of the application is **Personalized Memory**:
 
 ---
 
-## 5. Key Features
+## 5. Application Walkthrough & Visual Tour
+
+A step-by-step guide to explaining and presenting the AI Personal Examiner:
+
+### 1. Home & Assessment Setup (`/`)
+![Home Screen](screenshots/01_home_screen.png)
+- **Learner Profile Recognition**: Automatically recognizes returning candidates and loads their history ledger and memory graph.
+- **Domain Selection**: Choose from Python, SQL, FastAPI, Django, DSA, JavaScript, System Design, or DevOps.
+- **Starting Difficulty**: Select from Easy (Fundamentals), Medium (Real-world scenarios), or Hard (Internals & high scale). Difficulty will adapt dynamically during the session.
+
+---
+
+### 2. Live Technical Examination Suite (`/exam`)
+![Exam Screen](screenshots/02_exam_screen.png)
+- **Dynamic Question Synthesis**: The question is generated with zero repetition—any previously mastered concept definitions are excluded.
+- **Dual Response Modes**: 
+  - **Written Explanation**: Formulate technical reasoning, supported by voice dictation (`🎙️`) and live word count.
+  - **Code Sandbox**: Implement solutions directly in the code editor, insert starter templates, and run them in the isolated execution sandbox with real-time console output.
+- **Mock Interview Timer**: Real-time pressure timer simulating real technical screening constraints.
+- **Instant Rubric Evaluation**: Immediate score (`/10`), points covered (`✓`), missing nuances (`•`), and examiner guidance.
+
+---
+
+### 3. Performance Intelligence Dashboard (`/dashboard`)
+![Dashboard Screen](screenshots/03_dashboard_screen.png)
+- **Key Performance Indicators**: Real-time stats for Questions Attempted, Average Score, Current Difficulty, and **Questions Avoided** (quantifying repetitive questions saved).
+- **Skill Competency by Domain**: Visual progress bars showing cumulative mastery percentages across attempted technical domains.
+- **Mastered Concepts**: Badges for all concepts scored 8.0+/10 that the engine avoids asking basic questions on.
+- **Chronological History Log**: Full filterable audit trail of past inquiries, candidate answers, and AI ratings.
+
+---
+
+### 4. Candidate Analysis & Strategy Report (`/result`)
+![Report Screen](screenshots/04_report_screen.png)
+- **Examiner Observations**: In-depth diagnostic synthesis based on submitted code, reasoning patterns, and edge cases.
+- **Verified Strengths vs. Target Weaknesses**: Clear breakdown of what you know well versus where you need to focus.
+- **Algorithmic Study Plan**: Balanced distribution meter (e.g., 60% Weak Areas, 30% New Frontiers, 10% Revision).
+- **One-Click Export**: Download reports directly as Markdown (`.md`) or print to PDF.
+
+---
+
+## 6. Key Features
 - 🧠 **Persistent Learner Profiles**: Tracks progress across technical domains (Python, SQL, FastAPI, Django, DSA, JavaScript).
 - 📈 **Adaptive Difficulty Engine**: 
   - Score 8–10: Promotes to next difficulty tier (`easy` -> `medium` -> `hard`).
@@ -57,7 +98,7 @@ The cornerstone of the application is **Personalized Memory**:
 
 ---
 
-## 6. Architecture
+## 7. Architecture
 
 ```
 +-------------------------------------------------------------+
@@ -88,15 +129,15 @@ The cornerstone of the application is **Personalized Memory**:
 
 ---
 
-## 7. Tech Stack
+## 8. Tech Stack
 - **Backend**: Python 3.10+, FastAPI, SQLAlchemy 2.0, SQLite, Pydantic v2, Uvicorn
 - **AI / LLM Integration**: Groq API (`llama-3.3-70b-versatile`), Google GenAI (`gemini-3.6-flash`), or OpenAI (`gpt-4o-mini`), plus offline fallback
-- **Frontend**: Semantic HTML5, Vanilla CSS3 (Custom Glassmorphic Dark Design System), Vanilla JavaScript (ES6 Fetch API)
+- **Frontend**: Clean & Responsive HTML5, CSS3, JavaScript (ES6 Fetch API)
 - **Environment**: `python-dotenv` for configuration
 
 ---
 
-## 8. Folder Structure
+## 9. Folder Structure
 
 ```
 AI-Personal-Examiner/
@@ -143,7 +184,7 @@ AI-Personal-Examiner/
 
 ---
 
-## 9. Database Design
+## 10. Database Design
 
 The SQLite database (`examiner.db`) contains 4 interconnected tables:
 
@@ -195,7 +236,7 @@ The SQLite database (`examiner.db`) contains 4 interconnected tables:
 
 ---
 
-## 10. API Endpoints
+## 11. API Endpoints
 
 ### 1. `POST /exam/start`
 Starts or resumes an exam session.
@@ -279,7 +320,7 @@ Generates the comprehensive pedagogical analysis for *"What My Examiner Learned 
 
 ---
 
-## 11. Environment Setup
+## 12. Environment Setup
 
 Copy `.env.example` to `.env`:
 ```powershell
@@ -302,7 +343,7 @@ DATABASE_URL=sqlite:///./examiner.db
 
 ---
 
-## 12. Installation
+## 13. Installation
 
 Install all required packages:
 ```powershell
@@ -311,7 +352,7 @@ pip install -r requirements.txt
 
 ---
 
-## 13. Running the Project
+## 14. Running the Project
 
 1. **Start the FastAPI server**:
    ```powershell
@@ -332,7 +373,7 @@ pip install -r requirements.txt
 
 ---
 
-## 14. How LLM Integration Works
+## 15. How LLM Integration Works
 1. `services/llm_service.py` defines a modular interface with `generate_question()`, `evaluate_answer()`, and `generate_learning_analysis()`.
 2. When an API key is present (Groq, Gemini, or OpenAI), it requests structured JSON output by setting system prompts and enforcing response formats.
 3. The raw output is cleaned with regex to strip any markdown backticks, then validated using Pydantic models (`LLMQuestionOutput`, `LLMEvaluationOutput`, `LLMAnalysisOutput`).
@@ -340,7 +381,7 @@ pip install -r requirements.txt
 
 ---
 
-## 15. How Memory Works
+## 16. How Memory Works
 `services/memory.py` is the data aggregation engine:
 - `get_concept_scores()`: Groups past answers by concept and calculates the average score for each.
 - `get_mastered_concepts()`: Identifies concepts with an average score >= 8.0.
@@ -349,7 +390,7 @@ pip install -r requirements.txt
 
 ---
 
-## 16. How Anti-Repetition Works
+## 17. How Anti-Repetition Works
 Never relies solely on the LLM's memory:
 1. **Normalization**: Both the generated candidate and recent questions are stripped of punctuation, lowercased, and whitespace-collapsed.
 2. **Jaccard Token Similarity**: Measures token set overlap:
@@ -360,7 +401,7 @@ Never relies solely on the LLM's memory:
 
 ---
 
-## 17. How Adaptive Difficulty Works
+## 18. How Adaptive Difficulty Works
 Operates using a rolling window of recent scores:
 - **Score 8.0 – 10.0** (and rolling avg >= 7.5): Promotes difficulty:
   - `Easy` $\rightarrow$ `Medium`

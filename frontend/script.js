@@ -1,7 +1,7 @@
 /**
  * AI PERSONAL EXAMINER - CLIENT ENGINE
  * Handles API communication, session memory, UI state, Voice Mode, Code Sandbox,
- * Interview Countdown Timer, History Filters, and Report Exporting.
+ * Interview Countdown Timer, History Filters, Keyboard Shortcuts, and Report Exporting.
  */
 
 // Smart API endpoint discovery (fallback to localhost:8000 if served via Live Server or file)
@@ -40,6 +40,14 @@ const Session = {
   }
 };
 
+// Helper: Setup user initials avatar in navbars
+function setupUserAvatar(name) {
+  const navBadge = document.getElementById("user-nav-name");
+  const avatar = document.getElementById("user-avatar-initial");
+  if (navBadge) navBadge.textContent = name || "Learner";
+  if (avatar) avatar.textContent = (name || "U").charAt(0).toUpperCase();
+}
+
 // =========================================================================
 // 1. HOME PAGE INITIALIZATION
 // =========================================================================
@@ -49,6 +57,7 @@ function initHomePage() {
   const topicSelect = document.getElementById("exam-topic");
   const diffSelect = document.getElementById("exam-difficulty");
   const returnBanner = document.getElementById("returning-user-banner");
+  const bannerAvatar = document.getElementById("banner-avatar");
 
   const savedUser = Session.getUser();
   if (savedUser.id && nameInput) {
@@ -58,6 +67,7 @@ function initHomePage() {
     if (returnBanner) {
       returnBanner.style.display = "flex";
       document.getElementById("saved-learner-name").textContent = savedUser.name;
+      if (bannerAvatar) bannerAvatar.textContent = savedUser.name.charAt(0).toUpperCase();
     }
   }
 
@@ -67,7 +77,10 @@ function initHomePage() {
       const submitBtn = form.querySelector("button[type='submit']");
       const originalText = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = "<span>Initializing Memory...</span>";
+      submitBtn.innerHTML = `
+        <div class="spinner" style="width: 18px; height: 18px; border-width: 2px; margin: 0;"></div>
+        <span>Starting Exam...</span>
+      `;
 
       try {
         const payload = {
@@ -147,13 +160,15 @@ function updateTimerUI() {
 }
 
 // --- Voice Examiner TTS ---
+const SPEAKER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+const STOP_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
+
 function toggleExaminerVoice() {
   if (!("speechSynthesis" in window)) {
     alert("Speech Synthesis is not supported in this browser.");
     return;
   }
 
-  const voiceBtn = document.getElementById("voice-speak-btn");
   const icon = document.getElementById("voice-btn-icon");
   const label = document.getElementById("voice-btn-label");
   const soundwave = document.getElementById("soundwave-box");
@@ -161,7 +176,7 @@ function toggleExaminerVoice() {
   if (isSpeaking) {
     window.speechSynthesis.cancel();
     isSpeaking = false;
-    if (icon) icon.textContent = "🔊";
+    if (icon) icon.innerHTML = SPEAKER_SVG;
     if (label) label.textContent = "Listen to Examiner";
     if (soundwave) soundwave.classList.remove("is-speaking");
     return;
@@ -181,21 +196,21 @@ function toggleExaminerVoice() {
 
   utterance.onstart = () => {
     isSpeaking = true;
-    if (icon) icon.textContent = "⏹";
+    if (icon) icon.innerHTML = STOP_SVG;
     if (label) label.textContent = "Stop Examiner";
     if (soundwave) soundwave.classList.add("is-speaking");
   };
 
   utterance.onend = () => {
     isSpeaking = false;
-    if (icon) icon.textContent = "🔊";
+    if (icon) icon.innerHTML = SPEAKER_SVG;
     if (label) label.textContent = "Listen to Examiner";
     if (soundwave) soundwave.classList.remove("is-speaking");
   };
 
   utterance.onerror = () => {
     isSpeaking = false;
-    if (icon) icon.textContent = "🔊";
+    if (icon) icon.innerHTML = SPEAKER_SVG;
     if (label) label.textContent = "Listen to Examiner";
     if (soundwave) soundwave.classList.remove("is-speaking");
   };
@@ -311,7 +326,10 @@ async function loadNextQuestion() {
   if (submitBtn) {
     submitBtn.disabled = false;
     submitBtn.style.display = "inline-flex";
-    submitBtn.innerHTML = "<span>Submit Answer for AI Evaluation</span>";
+    submitBtn.innerHTML = `
+      <span>Submit Answer</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    `;
   }
 
   updateWordCount();
@@ -358,12 +376,15 @@ async function loadNextQuestion() {
     const icon = document.getElementById("voice-btn-icon");
     const label = document.getElementById("voice-btn-label");
     const soundwave = document.getElementById("soundwave-box");
-    if (icon) icon.textContent = "🔊";
+    if (icon) icon.innerHTML = SPEAKER_SVG;
     if (label) label.textContent = "Listen to Examiner";
     if (soundwave) soundwave.classList.remove("is-speaking");
 
+    // Auto-focus input
+    if (answerInput) answerInput.focus();
+
   } catch (err) {
-    if (loading) loading.innerHTML = `<p style="color: var(--accent-rose);">Error: ${err.message}</p><a href="/" class="btn btn-secondary" style="margin-top:16px;">Back to Home</a>`;
+    if (loading) loading.innerHTML = `<p style="color: var(--accent-rose); font-weight: 600;">Error: ${err.message}</p><a href="/" class="btn btn-secondary" style="margin-top:16px;">Back to Home</a>`;
   }
 }
 
@@ -374,8 +395,7 @@ function initExamPage() {
     return;
   }
 
-  const navBadge = document.getElementById("user-nav-name");
-  if (navBadge) navBadge.textContent = user.name;
+  setupUserAvatar(user.name);
 
   const answerForm = document.getElementById("answer-form");
   const answerInput = document.getElementById("answer-input");
@@ -407,6 +427,18 @@ function initExamPage() {
   if (answerInput) {
     answerInput.addEventListener("input", updateWordCount);
   }
+
+  // Keyboard shortcut: Ctrl+Enter (or Cmd+Enter) to submit answer
+  [answerInput, codeInput].forEach(inp => {
+    if (inp) {
+      inp.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          if (answerForm) answerForm.requestSubmit();
+        }
+      });
+    }
+  });
 
   // Code editor Tab key indentation
   if (codeInput) {
@@ -543,6 +575,7 @@ function initExamPage() {
       tabCode.classList.remove("active");
       if (textModeBox) textModeBox.style.display = "block";
       if (codeModeBox) codeModeBox.style.display = "none";
+      if (answerInput) answerInput.focus();
     });
 
     tabCode.addEventListener("click", () => {
@@ -595,7 +628,10 @@ function initExamPage() {
       stopDictationUI();
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = "<span>AI Examiner is Evaluating...</span>";
+      submitBtn.innerHTML = `
+        <div class="spinner" style="width: 18px; height: 18px; border-width: 2px; margin: 0;"></div>
+        <span>Evaluating Answer...</span>
+      `;
       if (answerInput) answerInput.disabled = true;
       if (codeInput) codeInput.disabled = true;
 
@@ -649,11 +685,17 @@ function initExamPage() {
         }
 
         submitBtn.style.display = "none";
-        if (evalPanel) evalPanel.style.display = "block";
+        if (evalPanel) {
+          evalPanel.style.display = "block";
+          evalPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       } catch (err) {
         alert(`Error: ${err.message}`);
         submitBtn.disabled = false;
-        submitBtn.innerHTML = "<span>Submit Answer for AI Evaluation</span>";
+        submitBtn.innerHTML = `
+          <span>Submit Answer</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        `;
         if (answerInput) answerInput.disabled = false;
         if (codeInput) codeInput.disabled = false;
       }
@@ -685,8 +727,7 @@ async function initDashboardPage() {
     return;
   }
 
-  const navBadge = document.getElementById("user-nav-name");
-  if (navBadge) navBadge.textContent = user.name;
+  setupUserAvatar(user.name);
 
   try {
     const [analysisRes, historyRes] = await Promise.all([
@@ -733,7 +774,7 @@ async function initDashboardPage() {
       resetTopicSelect.innerHTML = `<option value="all">Entire Profile (All Topics & History)</option>`;
     }
     if (historyFilter) {
-      historyFilter.innerHTML = `<option value="all" selected>All Topics</option>`;
+      historyFilter.innerHTML = `<option value="all" selected>All Domains</option>`;
     }
 
     (analysis.topic_breakdown || []).forEach(tb => {
@@ -771,30 +812,30 @@ async function initDashboardPage() {
       const historyContainer = document.getElementById("history-items-container");
       historyContainer.innerHTML = "";
       if (items.length === 0) {
-        historyContainer.innerHTML = `<p style="color: var(--text-dim); padding: 16px 0;">No question history recorded for this view.</p>`;
+        historyContainer.innerHTML = `<p style="color: var(--text-dim); padding: 18px 0; text-align: center;">No question history recorded for this view.</p>`;
         return;
       }
       items.forEach(item => {
         const div = document.createElement("div");
         div.className = "history-card";
         div.dataset.topic = (item.topic || "").toLowerCase();
-        div.style.cssText = "background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 18px; margin-bottom: 14px;";
         div.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; gap: 8px; align-items: center;">
               <span class="topic-badge">${item.topic}</span>
               <span class="diff-badge diff-${item.difficulty.toLowerCase()}">${item.difficulty}</span>
-              <span style="font-size: 13px; color: var(--text-dim);">${item.concept}</span>
+              <span class="q-concept">${item.concept}</span>
             </div>
-            <strong style="color: ${item.score >= 8 ? 'var(--accent-emerald)' : item.score >= 5 ? 'var(--accent-amber)' : 'var(--accent-rose)'};">
+            <div style="font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: ${item.score >= 8 ? 'var(--success-text)' : item.score >= 5 ? 'var(--warning-text)' : 'var(--danger-text)'};">
               Score: ${item.score}/10
-            </strong>
+            </div>
           </div>
-          <p style="font-size: 14.5px; font-weight: 600; color: #f1f5f9; margin-bottom: 8px;">${item.question_text}</p>
-          <p style="font-size: 13px; color: var(--text-muted); background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 6px; font-family: var(--font-mono); margin-bottom: 8px; white-space: pre-wrap;">
-"${item.answer_text}"
-          </p>
-          <p style="font-size: 13px; color: var(--accent-cyan);">Feedback: ${item.feedback}</p>
+          <p style="font-size: 14.5px; font-weight: 600; color: var(--text-main); margin-bottom: 10px; line-height: 1.5;">${item.question_text}</p>
+          <div style="font-size: 13px; color: var(--text-secondary); background: var(--bg-subtle); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-mono); margin-bottom: 10px; white-space: pre-wrap; line-height: 1.5;">${item.answer_text}</div>
+          <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            <span style="font-weight: 600; color: var(--primary);">Feedback:</span>
+            <span>${item.feedback}</span>
+          </div>
         `;
         historyContainer.appendChild(div);
       });
@@ -874,8 +915,7 @@ async function initResultPage() {
     return;
   }
 
-  const navBadge = document.getElementById("user-nav-name");
-  if (navBadge) navBadge.textContent = user.name;
+  setupUserAvatar(user.name);
 
   try {
     const res = await fetch(`${API_BASE}/exam/analysis/${user.id}`);
