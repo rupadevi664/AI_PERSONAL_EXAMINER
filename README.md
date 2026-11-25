@@ -1,4 +1,4 @@
-DEPLOY LINK: https://ai-personal-examiner.onrender.com
+DEPLOY LINK: https://ai-personal-examiner-tiva.onrender.com/exam
 
 # AI PERSONAL EXAMINER
 > *“An AI examiner that remembers what I know.”*
